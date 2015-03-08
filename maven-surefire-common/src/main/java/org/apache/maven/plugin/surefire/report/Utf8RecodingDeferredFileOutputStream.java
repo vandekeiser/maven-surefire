@@ -42,7 +42,7 @@ class Utf8RecodingDeferredFileOutputStream
     private static final Charset UTF8 = Charset.forName( "UTF-8" );
 
     static final int BIG_MAGIC_THRESHOLD = 1000000;
-    static final int SMALL_MAGIC_THRESHOLD = 1024;
+    static final int SMALL_MAGIC_THRESHOLD = 1024;//doesn't change anything
 
     @SuppressWarnings( "checkstyle:magicnumber" )
     public Utf8RecodingDeferredFileOutputStream( String channel )

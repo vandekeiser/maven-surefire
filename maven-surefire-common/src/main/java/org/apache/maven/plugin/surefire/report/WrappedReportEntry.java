@@ -23,6 +23,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.apache.maven.surefire.report.ReportEntry;
+import org.apache.maven.surefire.report.SafeThrowable;
 import org.apache.maven.surefire.report.StackTraceWriter;
 
 /**
@@ -31,6 +32,67 @@ import org.apache.maven.surefire.report.StackTraceWriter;
 public class WrappedReportEntry
     implements ReportEntry
 {
+    static final StackTraceWriter DONT_WRITE = new StackTraceWriter() {
+        public String writeTraceToString()
+        {
+            return "";
+        }
+
+        public String writeTrimmedTraceToString()
+        {
+            return "";
+        }
+
+        public String smartTrimmedStackTrace()
+        {
+            return "";
+        }
+
+        public SafeThrowable getThrowable()
+        {
+            return null;
+        }
+    };
+
+    static final ReportEntry NO_ENTRY = new ReportEntry()
+    {
+        public String getSourceName()
+        {
+            return "";
+        }
+
+        public String getName()
+        {
+            return "";
+        }
+
+        public String getGroup()
+        {
+            return "";
+        }
+
+        public StackTraceWriter getStackTraceWriter()
+        {
+            return DONT_WRITE;
+        }
+
+        public Integer getElapsed()
+        {
+
+            return 0;
+        }
+
+        public String getMessage()
+        {
+            return "";
+        }
+
+        public String getNameWithGroup()
+        {
+            return "";
+        }
+    };
+
     private final ReportEntry original;
 
     private final ReportEntryType reportEntryType;
@@ -51,7 +113,7 @@ public class WrappedReportEntry
                                Utf8RecodingDeferredFileOutputStream stdout,
                                Utf8RecodingDeferredFileOutputStream stdErr )
     {
-        this.original = original;
+        this.original = NO_ENTRY;
         this.reportEntryType = reportEntryType;
         this.elapsed = estimatedElapsed;
         this.stdout = stdout;
