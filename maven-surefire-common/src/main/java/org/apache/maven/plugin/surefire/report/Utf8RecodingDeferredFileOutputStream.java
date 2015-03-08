@@ -24,8 +24,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-
-import org.apache.commons.io.output.DeferredFileOutputStream;
+import org.apache.commons.io.output.NullOutputStream;
 
 /**
  * A deferred file output stream decorator that recodes the bytes written into the stream from the VM default encoding
@@ -35,16 +34,43 @@ import org.apache.commons.io.output.DeferredFileOutputStream;
  */
 class Utf8RecodingDeferredFileOutputStream
 {
-    private DeferredFileOutputStream deferredFileOutputStream;
+    //private DeferredFileOutputStream deferredFileOutputStream;
+    OutputStream deferredFileOutputStream;
 
     private boolean closed = false;
 
     private static final Charset UTF8 = Charset.forName( "UTF-8" );
 
+    static final int BIG_MAGIC_THRESHOLD = 1000000;
+    static final int SMALL_MAGIC_THRESHOLD = 1024;
+
     @SuppressWarnings( "checkstyle:magicnumber" )
     public Utf8RecodingDeferredFileOutputStream( String channel )
     {
-        this.deferredFileOutputStream = new DeferredFileOutputStream( 1000000, channel, "deferred", null );
+        this( channel, SMALL_MAGIC_THRESHOLD );
+    }
+
+    private Utf8RecodingDeferredFileOutputStream( String channel, int threshold )
+    {
+        this.deferredFileOutputStream = new NullOutputStream();
+
+//        //public DeferredFileOutputStream(int threshold, String prefix, String suffix, File directory) {
+//        this.deferredFileOutputStream = new DeferredFileOutputStream(
+//                threshold, //int threshold
+//                channel,   //String prefix
+//                "deferred",//String suffix
+//                null       //File directory
+//        );
+//        //-->
+//
+//        //int threshold, File outputFile, String prefix, String suffix, File directory
+//        new DeferredFileOutputStream(
+//                threshold, //int threshold
+//                (File)null,//File outputFile
+//                channel,    //prefix
+//                "deferred",    //suffix
+//                null  //directory
+//        );
     }
 
     public synchronized void write( byte[] buf, int off, int len )
@@ -82,7 +108,8 @@ class Utf8RecodingDeferredFileOutputStream
 
     public long getByteCount()
     {
-        return deferredFileOutputStream.getByteCount();
+        return 0;
+        //return deferredFileOutputStream.getByteCount();
     }
 
     public synchronized void close()
@@ -97,26 +124,26 @@ class Utf8RecodingDeferredFileOutputStream
     {
         if ( closed )
         {
-            deferredFileOutputStream.writeTo( out );
+            //deferredFileOutputStream.writeTo( out );
         }
     }
 
     public synchronized void free()
     {
-        if ( null != deferredFileOutputStream && null != deferredFileOutputStream.getFile() )
+        if ( null != deferredFileOutputStream /*&& null != deferredFileOutputStream.getFile()*/ )
         {
             try
             {
                 closed = true;
                 deferredFileOutputStream.close();
-                if ( !deferredFileOutputStream.getFile().delete() )
-                {
-                    deferredFileOutputStream.getFile().deleteOnExit();
-                }
+//                if ( !deferredFileOutputStream.getFile().delete() )
+//                {
+//                    deferredFileOutputStream.getFile().deleteOnExit();
+//                }
             }
             catch ( IOException ioe )
             {
-                deferredFileOutputStream.getFile().deleteOnExit();
+                //deferredFileOutputStream.getFile().deleteOnExit();
 
             }
         }
